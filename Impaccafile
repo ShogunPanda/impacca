@@ -1,4 +1,4 @@
 #!/bin/sh
 
-sed -i '' -E 's#rootCmd\.Version.+#rootCmd.Version = "$1"#' main.go
+sed -i "" -E "s#rootCmd\.Version.+#rootCmd.Version = \"$1\"#" main.go
 mage build
