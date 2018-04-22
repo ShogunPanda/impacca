@@ -20,7 +20,7 @@ func main() {
 	tempera.AddCustomStyle("errorPrimary", "bold", "white")
 
 	var rootCmd = &cobra.Command{Use: "impacca", Short: "Package releasing made easy."}
-	rootCmd.Version = "@@IMPACCA_VERSION@@"
+	rootCmd.Version = "$1"
 	rootCmd.PersistentFlags().BoolP("dry-run", "n", false, "Do not execute write operation, only show them.")
 
 	rootCmd.AddCommand(version.InitCLI())
