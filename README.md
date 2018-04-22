@@ -10,7 +10,14 @@ http://sw.cowtech.it/impacca
 
 # Installation
 
-Install
+Type the following inside a fish shell and you're done!
+
+```bash
+curl -sL http://sw.cowtech.it/impacca/installer | sudo bash
+```
+
+impicca will be installed in `/usr/local/bin`.
+
 
 # Usage
 

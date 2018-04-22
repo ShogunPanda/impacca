@@ -6,6 +6,8 @@
 package release
 
 import (
+	"fmt"
+
 	"github.com/Masterminds/semver"
 	"github.com/ShogunPanda/impacca/utils"
 	"github.com/spf13/cobra"
@@ -14,22 +16,28 @@ import (
 // InitCLI initializes the CLI
 func InitCLI() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "release <version> [changes...]", Aliases: []string{"r"}, Short: "Releases a new current version.", Args: cobra.MinimumNArgs(1), Run: release,
+		Use: "release <version> [changes...]", Aliases: []string{"r"}, Short: "Releases a new version.", Args: cobra.MinimumNArgs(1), Run: release,
 	}
 
-	// TODO@PI: Restricted support for npm
 	cmd.Flags().BoolP("skip-changelog", "c", false, "Do not update the CHANGELOG.md file.")
+	cmd.Flags().BoolP("private", "p", false, "Use private scope when possible.")
 
 	return cmd
 }
 
-func releaseNpmPackage(newVersion, currentVersion *semver.Version, dryRun bool) {
+func releaseNpmPackage(newVersion, currentVersion *semver.Version, private, dryRun bool) {
+	access := "public"
+
+	if private {
+		access = "restricted"
+	}
+
 	if utils.NotifyStep(dryRun, "", "Will update", "Updating", " the version to {primary}%s{-} ...", newVersion.String()) {
 		utils.UpdateNpmVersion(newVersion, currentVersion, true, false, dryRun)
 	}
 
-	if utils.NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}npm publish{-} ...") {
-		result := utils.Execute(true, "npm", "publish")
+	if utils.NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}npm publish --access %s{-} ...", access) {
+		result := utils.Execute(true, "npm", "publish", fmt.Sprintf("--access %s", access))
 		result.Verify("npm", "Cannot publish the package")
 	}
 }
@@ -64,6 +72,7 @@ func releasePlain(newVersion, currentVersion *semver.Version, dryRun bool) {
 func release(cmd *cobra.Command, args []string) {
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
 	skipChangelog, _ := cmd.Flags().GetBool("skip-changelog")
+	private, _ := cmd.Flags().GetBool("private")
 
 	rawChanges := args[1:]
 	currentVersion := utils.GetCurrentVersion()
@@ -89,7 +98,7 @@ func release(cmd *cobra.Command, args []string) {
 
 	switch utils.DetectRelease() {
 	case utils.NpmRelease:
-		releaseNpmPackage(newVersion, currentVersion, dryRun)
+		releaseNpmPackage(newVersion, currentVersion, private, dryRun)
 	case utils.GemRelease:
 		releaseGem(newVersion, currentVersion, dryRun)
 	default:

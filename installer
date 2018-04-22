@@ -18,5 +18,6 @@ Darwin)
   ;;
 esac
 
+mkdir -p /usr/local/bin
 curl -o /usr/local/bin/impacca https://github.com/ShogunPanda/fishamnium/raw/$VERSION/dist/impacca-$OS
 chmod a+x /usr/local/bin/impacca
