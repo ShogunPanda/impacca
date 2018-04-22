@@ -1,4 +1,4 @@
 #!/bin/sh
 
-sed -i '' 's#.+@@IMPICCA_VERSION@@#rootCmd.Version = "$1" // @@IMPICCA_VERSION@@ #' main.go
+sed -i '' 's#.+@@IMPACCA_VERSION@@#rootCmd.Version = "$1" // @@IMPACCA_VERSION@@ #' main.go
 mage build
