@@ -1,0 +1,20 @@
+#
+# This file is part of impacca. Copyright (C) 2013 and above Shogun <shogun@cowtech.it>.
+# Licensed under the MIT license, which can be found at https://choosealicense.com/licenses/mit.
+#
+
+[[constraint]]
+  name = "github.com/ShogunPanda/tempera"
+  version = "1.1.0"
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+  version = "0.0.1"
+
+[[constraint]]
+  name = "github.com/Masterminds/semver"
+  version = "1.4.2"
+
+[prune]
+  go-tests = true
+  unused-packages = true
