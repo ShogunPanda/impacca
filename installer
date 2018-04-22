@@ -19,5 +19,5 @@ Darwin)
 esac
 
 mkdir -p /usr/local/bin
-curl -sL -o /usr/local/bin/impacca https://github.com/ShogunPanda/impacca/raw/$VERSION/dist/impacca-$OS
+curl -L -o /usr/local/bin/impacca https://github.com/ShogunPanda/impacca/raw/$VERSION/dist/impacca-$OS
 chmod a+x /usr/local/bin/impacca
