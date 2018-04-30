@@ -31,7 +31,7 @@ func LogWithIcon(destination *os.File, icon, message string, args ...interface{}
 
 // Info shows a info message
 func Info(message string, args ...interface{}) {
-	LogWithIcon(os.Stdout, "💬", message, args) // Emoji code: 1F4AC
+	LogWithIcon(os.Stdout, "💬", message, args...) // Emoji code: 1F4AC
 }
 
 // Success shows a success message
