@@ -7,6 +7,7 @@ package utils
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
@@ -40,4 +41,9 @@ func GetEmojiWidth() {
 	coordinates := strings.Split(string(position[2:len(position)-1]), ";")
 	width, _ := strconv.ParseInt(coordinates[1], 0, 4)
 	emojiSpacer = strings.Repeat(" ", 4-int(width))
+}
+
+// SpacedEmoji returns an emoji with a trailing space
+func SpacedEmoji(emoji string) string {
+	return fmt.Sprintf("%s%s", emoji, emojiSpacer)
 }
