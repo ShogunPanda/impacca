@@ -7,14 +7,11 @@ package utils
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 )
-
-var emojiSpacer = "\x1b[0E\x1b[3C"
 
 func setTerminalMode(mode string) {
 	cmd := exec.Command("/bin/stty", mode)
@@ -24,7 +21,7 @@ func setTerminalMode(mode string) {
 }
 
 // GetEmojiWidth Detects handling of emoji
-func GetEmojiWidth() {
+func GetEmojiWidth() int64 {
 	setTerminalMode("raw")
 
 	os.Stdout.Write([]byte("💬\x1b[6n"))
@@ -40,10 +37,11 @@ func GetEmojiWidth() {
 	// Parse the position
 	coordinates := strings.Split(string(position[2:len(position)-1]), ";")
 	width, _ := strconv.ParseInt(coordinates[1], 0, 4)
-	emojiSpacer = strings.Repeat(" ", 4-int(width))
+
+	return width
 }
 
 // SpacedEmoji returns an emoji with a trailing space
 func SpacedEmoji(emoji string) string {
-	return fmt.Sprintf("%s%s", emoji, emojiSpacer)
+	return emoji + "\x1b[4G"
 }

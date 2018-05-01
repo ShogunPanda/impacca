@@ -34,7 +34,7 @@ func (e ExecutionResult) Verify(executableName, failureMessage string) {
 
 func wrapOutput(output string) string {
 	replacer, _ := regexp.Compile("(?m)(^)")
-	return replacer.ReplaceAllString(output, fmt.Sprintf("⛓️%s$1", emojiSpacer))
+	return replacer.ReplaceAllString(output, "⛓️\x1b[4G$1")
 }
 
 func showAndBufferOutput(source io.ReadCloser, buffer *string, destination *os.File) {
