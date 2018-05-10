@@ -63,23 +63,25 @@ func SaveChanges(newVersion, currentVersion *semver.Version, changes []Change, d
 		Fatal("Cannot read file {errorPrimary}CHANGELOG.md{-}: {errorPrimary}%s{-}", err.Error())
 	}
 
-	// Create the new entry
-	var builder strings.Builder
-	builder.WriteString(fmt.Sprintf("### %s / %s\n\n", time.Now().Format("2006-01-02"), newVersion.String()))
+	if NotifyExecution(dryRun, "Will append", "Appending", " {primary}%d{-} entries to the CHANGELOG.md file ...", len(changes)) {
+		// Create the new entry
+		var builder strings.Builder
+		builder.WriteString(fmt.Sprintf("### %s / %s\n\n", time.Now().Format("2006-01-02"), newVersion.String()))
 
-	for _, change := range changes {
-		builder.WriteString(fmt.Sprintf("* %s\n", change.Message))
-	}
+		for _, change := range changes {
+			builder.WriteString(fmt.Sprintf("* %s\n", change.Message))
+		}
 
-	// Append the existing Changelog
-	builder.WriteString("\n")
-	builder.Write(changelog)
+		// Append the existing Changelog
+		builder.WriteString("\n")
+		builder.Write(changelog)
 
-	// Save the new file
-	err = ioutil.WriteFile(filepath.Join(cwd, "CHANGELOG.md"), []byte(builder.String()), 0644)
+		// Save the new file
+		err = ioutil.WriteFile(filepath.Join(cwd, "CHANGELOG.md"), []byte(builder.String()), 0644)
 
-	if err != nil {
-		Fatal("Cannot update file {errorPrimary}CHANGELOG.md{-}: {errorPrimary}%s{-}", err.Error())
+		if err != nil {
+			Fatal("Cannot update file {errorPrimary}CHANGELOG.md{-}: {errorPrimary}%s{-}", err.Error())
+		}
 	}
 
 	// Commit changes
