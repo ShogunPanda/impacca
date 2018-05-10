@@ -94,5 +94,5 @@ func FinishStep(code int) {
 		color = "red"
 	}
 
-	LogWithIcon(os.Stdout, "⚙️", fmt.Sprintf("%sExited with status %d{-}", color, code)) // Emoji code: 2699+FEOF
+	LogWithIcon(os.Stdout, "⚙️", fmt.Sprintf("{%s}Exited with status %d{-}", color, code)) // Emoji code: 2699+FEOF
 }
