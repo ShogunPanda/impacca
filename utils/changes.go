@@ -85,8 +85,9 @@ func SaveChanges(newVersion, currentVersion *semver.Version, changes []Change, d
 	}
 
 	// Commit changes
-	if NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit -a -m \"%s\"{-} ...", configuration.Current.CommitMessages.Changelog) {
-		result := Execute(true, "git", "commit", "-a", fmt.Sprintf("--message=%s", configuration.Current.CommitMessages.Changelog))
+	message := strings.TrimSpace(configuration.Current.CommitMessages.Changelog)
+	if NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit --all --message \"%s\"{-} ...", message) {
+		result := Execute(true, "git", "commit", "--all", fmt.Sprintf("--message=%s", message))
 		result.Verify("git", "Cannot commit CHANGELOG.md update")
 	}
 }

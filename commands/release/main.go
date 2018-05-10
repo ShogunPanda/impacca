@@ -61,7 +61,7 @@ func releasePlain(newVersion, currentVersion *semver.Version, dryRun bool) {
 	}
 
 	if utils.NotifyExecution(dryRun, "Will push", "Pushing", " tags ...") {
-		result := utils.Execute(true, "git", "push", "-f", "--tags")
+		result := utils.Execute(true, "git", "push", "--force", "--tags")
 		result.Verify("git", "Cannot push tags")
 	}
 }

@@ -91,7 +91,7 @@ func Execute(showOutput bool, cmd string, args ...string) (result ExecutionResul
 // GitMustBeClean checks that the current working copy has not uncommitted changes
 func GitMustBeClean(reason string) {
 	// Execute the command
-	result := Execute(false, "git", "status", "-s")
+	result := Execute(false, "git", "status", "--short")
 	result.Verify("git", "Cannot check repository status")
 
 	if len(result.Stdout) > 0 {

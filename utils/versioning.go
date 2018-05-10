@@ -20,18 +20,18 @@ import (
 
 func commitVersioning(version *semver.Version, commit, tag, dryRun bool) {
 	versionString := version.String()
-	versionMessage := fmt.Sprintf(configuration.Current.CommitMessages.Versioning, versionString)
+	versionMessage := strings.TrimSpace(fmt.Sprintf(configuration.Current.CommitMessages.Versioning, versionString))
 
 	// Commit changes
 
-	if commit && NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit -a -m \"%s\"{-} ...", versionMessage) {
-		result := Execute(true, "git", "commit", "-a", fmt.Sprintf("--message=%s", versionMessage))
+	if commit && NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit --all --message=\"%s\"{-} ...", versionMessage) {
+		result := Execute(true, "git", "commit", "--all", fmt.Sprintf("--message=%s", versionMessage))
 		result.Verify("git", "Cannot commit version change")
 	}
 
 	// Tag the version
 	if tag && NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git tag -f v%s{-} ...", versionString) {
-		result := Execute(true, "git", "tag", "-f", "v"+versionString)
+		result := Execute(true, "git", "tag", "--force", "v"+versionString)
 		result.Verify("git", "Cannot tag GIT version")
 	}
 }
@@ -114,7 +114,7 @@ func UpdateVersion(newVersion, currentVersion *semver.Version, dryRun bool) {
 // UpdateNpmVersion updates the current version using NPM.
 func UpdateNpmVersion(newVersion, currentVersion *semver.Version, commit, tag, dryRun bool) {
 	versionString := newVersion.String()
-	versionMessage := configuration.Current.CommitMessages.Versioning
+	versionMessage := strings.TrimSpace(configuration.Current.CommitMessages.Versioning)
 
 	if !NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}npm version %s --message=%s{-} ...", versionString, versionMessage) {
 		return
@@ -162,7 +162,7 @@ func UpdateGemVersion(newVersion, currentVersion *semver.Version, commit, tag, d
 // UpdatePlainVersion updates the current version according to a plain managament.
 func UpdatePlainVersion(newVersion, currentVersion *semver.Version, commit, tag, dryRun bool) {
 	versionString := newVersion.String()
-	versionMessage := fmt.Sprintf(configuration.Current.CommitMessages.Versioning, versionString)
+	versionMessage := strings.TrimSpace(fmt.Sprintf(configuration.Current.CommitMessages.Versioning, versionString))
 
 	cwd, _ := os.Getwd()
 	stat, err := os.Stat(filepath.Join(cwd, "Impaccafile"))
@@ -174,11 +174,11 @@ func UpdatePlainVersion(newVersion, currentVersion *semver.Version, commit, tag,
 		}
 
 		if commit {
-			if !NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit -a -m \"%s\"{-} ...", versionMessage) {
+			if !NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit --all --message \"%s\"{-} ...", versionMessage) {
 				return
 			}
 
-			result := Execute(true, "git", "commit", "-a", fmt.Sprintf("-m %s", versionMessage))
+			result := Execute(true, "git", "commit", "--all", fmt.Sprintf("--message=%s", versionMessage))
 			result.Verify("Impaccafile", "Cannot commit Impaccafile changes")
 		}
 	}
