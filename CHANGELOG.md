@@ -1,3 +1,7 @@
+### 2018-05-10 / 1.2.1
+
+* fix: Fix formatting color for steps.
+
 ### 2018-05-10 / 1.2.0
 
 * fix: Always use long options form for git.
