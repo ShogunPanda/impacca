@@ -32,9 +32,8 @@ func releaseNpmPackage(newVersion, currentVersion *semver.Version, private, dryR
 		access = "restricted"
 	}
 
-	if utils.NotifyStep(dryRun, "", "Will update", "Updating", " the version to {primary}%s{-} ...", newVersion.String()) {
-		utils.UpdateNpmVersion(newVersion, currentVersion, true, false, dryRun)
-	}
+	utils.NotifyStep(dryRun, "", "Will update", "Updating", " the version to {primary}%s{-} ...", newVersion.String())
+	utils.UpdateNpmVersion(newVersion, currentVersion, true, false, dryRun)
 
 	if utils.NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}npm publish --access %s{-} ...", access) {
 		result := utils.Execute(true, "npm", "publish", fmt.Sprintf("--access %s", access))
@@ -43,9 +42,8 @@ func releaseNpmPackage(newVersion, currentVersion *semver.Version, private, dryR
 }
 
 func releaseGem(newVersion, currentVersion *semver.Version, dryRun bool) {
-	if utils.NotifyStep(dryRun, "", "Will update", "Updating", " the version to {primary}%s{-} ...", newVersion.String()) {
-		utils.UpdateGemVersion(newVersion, currentVersion, true, false, dryRun)
-	}
+	utils.NotifyStep(dryRun, "", "Will update", "Updating", " the version to {primary}%s{-} ...", newVersion.String())
+	utils.UpdateGemVersion(newVersion, currentVersion, true, false, dryRun)
 
 	if utils.NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}rake release{-} ...") {
 		result := utils.Execute(true, "rake", "release")
@@ -54,9 +52,8 @@ func releaseGem(newVersion, currentVersion *semver.Version, dryRun bool) {
 }
 
 func releasePlain(newVersion, currentVersion *semver.Version, dryRun bool) {
-	if utils.NotifyStep(dryRun, "", "Will update", "Updating", " the version to {primary}%s{-} ...", newVersion.String()) {
-		utils.UpdateVersion(newVersion, currentVersion, dryRun)
-	}
+	utils.NotifyStep(dryRun, "", "Will update", "Updating", " the version to {primary}%s{-} ...", newVersion.String())
+	utils.UpdateVersion(newVersion, currentVersion, dryRun)
 
 	if utils.NotifyExecution(dryRun, "Will push", "Pushing", " commits ...") {
 		result := utils.Execute(true, "git", "push")
