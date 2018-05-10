@@ -8,7 +8,7 @@ Package releasing made easy.
 
 http://sw.cowtech.it/impacca
 
-# Installation
+## Installation
 
 Type the following inside a fish shell and you're done!
 
@@ -19,7 +19,7 @@ curl -sL http://sw.cowtech.it/impacca/installer | sudo bash
 impicca will be installed in `/usr/local/bin`.
 
 
-# Usage
+## Usage
 
 impacca is able to help you in maintaining the CHANGELOG.md file and the version for npm modules, Ruby gems and standalone git repository.
 
@@ -30,6 +30,25 @@ To see all the possible commands, simple run:
 ```bash
 impacca -h
 ```
+
+## Configuration
+
+impacca tries to find a `.impacca.json` in the current working directory and all its parents and in your home directory.
+
+Here's a list of supported configuration fine (with their default):
+
+```json
+{
+  "commitMessages": {
+    "changelog": "Updated CHANGELOG.md.", // Message used to commit changelog updates.
+    "versioning": "Version %s." // Message used to commit version updates. %s will be replaced with the NEW version
+  }
+}
+```
+
+When releasing a new version in plain GIT repository, impacca will also look for `Impaccafile` executable script.
+This script will be executed prior commiting the changes and will receive the NEW version as first argument and the OLD version as second argument.
+You can find an example of a `Impaccafile` in this repository (which uses this feature).
 
 ## Contributing to impacca
 

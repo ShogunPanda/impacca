@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/semver"
+	"github.com/ShogunPanda/impacca/configuration"
 )
 
 // Change represents a git commit
@@ -82,8 +83,8 @@ func SaveChanges(newVersion, currentVersion *semver.Version, changes []Change, d
 	}
 
 	// Commit changes
-	if NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit -a -m \"Updated CHANGELOG.md.\"{-} ...") {
-		result := Execute(true, "git", "commit", "-a", "--message=Updated CHANGELOG.md.")
+	if NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit -a -m \"%s\"{-} ...", configuration.Current.CommitMessages.Changelog) {
+		result := Execute(true, "git", "commit", "-a", fmt.Sprintf("--message=%s", configuration.Current.CommitMessages.Changelog))
 		result.Verify("git", "Cannot commit CHANGELOG.md update")
 	}
 }

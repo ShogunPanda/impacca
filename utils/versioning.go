@@ -15,14 +15,17 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
+	"github.com/ShogunPanda/impacca/configuration"
 )
 
 func commitVersioning(version *semver.Version, commit, tag, dryRun bool) {
 	versionString := version.String()
+	versionMessage := fmt.Sprintf(configuration.Current.CommitMessages.Versioning, versionString)
 
 	// Commit changes
-	if commit && NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit -a -m \"Version %s.\"{-} ...", versionString) {
-		result := Execute(true, "git", "commit", "-a", fmt.Sprintf("--message=Version %s.", versionString))
+
+	if commit && NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit -a -m \"%s\"{-} ...", versionMessage) {
+		result := Execute(true, "git", "commit", "-a", fmt.Sprintf("--message=%s", versionMessage))
 		result.Verify("git", "Cannot commit version change")
 	}
 
@@ -111,11 +114,13 @@ func UpdateVersion(newVersion, currentVersion *semver.Version, dryRun bool) {
 // UpdateNpmVersion updates the current version using NPM.
 func UpdateNpmVersion(newVersion, currentVersion *semver.Version, commit, tag, dryRun bool) {
 	versionString := newVersion.String()
-	if !NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}npm version %s{-} ...", versionString) {
+	versionMessage := configuration.Current.CommitMessages.Versioning
+
+	if !NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}npm version %s --message=%s{-} ...", versionString, versionMessage) {
 		return
 	}
 
-	result := Execute(true, "npm", "version", versionString, "--message=Version %s.")
+	result := Execute(true, "npm", "version", versionString, fmt.Sprintf("--message=%s", versionMessage))
 	result.Verify("npm", "Cannot update NPM version")
 }
 
@@ -157,24 +162,23 @@ func UpdateGemVersion(newVersion, currentVersion *semver.Version, commit, tag, d
 // UpdatePlainVersion updates the current version according to a plain managament.
 func UpdatePlainVersion(newVersion, currentVersion *semver.Version, commit, tag, dryRun bool) {
 	versionString := newVersion.String()
+	versionMessage := fmt.Sprintf(configuration.Current.CommitMessages.Versioning, versionString)
 
 	cwd, _ := os.Getwd()
 	stat, err := os.Stat(filepath.Join(cwd, "Impaccafile"))
 
 	if err == nil && stat.IsDir() == false && stat.Mode()&0111 != 0 {
-		if !NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}./Impaccafile %s %s{-} ...", newVersion, currentVersion) {
-			return
+		if NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}./Impaccafile %s %s{-} ...", newVersion, currentVersion) {
+			result := Execute(true, filepath.Join(cwd, "Impaccafile"), versionString, currentVersion.String())
+			result.Verify("git", "Cannot execute the Impaccafile")
 		}
 
-		result := Execute(true, filepath.Join(cwd, "Impaccafile"), versionString, currentVersion.String())
-		result.Verify("git", "Cannot execute the Impaccafile")
-
 		if commit {
-			if !NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit -a -m \"Version %s.\"{-} ...", versionString) {
+			if !NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit -a -m \"%s\"{-} ...", versionMessage) {
 				return
 			}
 
-			result = Execute(true, "git", "commit", "-a", fmt.Sprintf("-m Version %s", versionString))
+			result := Execute(true, "git", "commit", "-a", fmt.Sprintf("-m %s", versionMessage))
 			result.Verify("Impaccafile", "Cannot commit Impaccafile changes")
 		}
 	}
