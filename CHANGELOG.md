@@ -1,3 +1,7 @@
+### 2018-06-17 / 1.3.0
+
+* feat: Add `auto` keyword to autodetect the new version to release.
+
 ### 2018-05-10 / 1.2.1
 
 * fix: Fix formatting color for steps.
