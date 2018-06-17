@@ -7,11 +7,16 @@ package release
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/Masterminds/semver"
+	"github.com/ShogunPanda/fishamnium/console"
 	"github.com/ShogunPanda/impacca/utils"
 	"github.com/spf13/cobra"
 )
+
+var majorChangeDetect = regexp.MustCompile(".*BREAKING CHANGE:\\s.*")
+var minorChangeDetect = regexp.MustCompile("^feat(\\(.+\\))?:")
 
 // InitCLI initializes the CLI
 func InitCLI() *cobra.Command {
@@ -23,6 +28,26 @@ func InitCLI() *cobra.Command {
 	cmd.Flags().BoolP("private", "p", false, "Use private scope when possible.")
 
 	return cmd
+}
+
+func detectNewVersion(currentVersion *semver.Version) *semver.Version {
+	changes := utils.ListChanges(currentVersion.String())
+	newVersion := "patch"
+
+	if len(changes) == 0 {
+		console.Fatal("Cannot detect the new version: no changes found.")
+	}
+
+	for _, change := range changes {
+		if majorChangeDetect.MatchString(change.Message) {
+			newVersion = "major"
+			break
+		} else if minorChangeDetect.MatchString(change.Message) {
+			newVersion = "minor"
+		}
+	}
+
+	return utils.ChangeVersion(currentVersion, newVersion)
 }
 
 func releaseNpmPackage(newVersion, currentVersion *semver.Version, private, dryRun bool) {
@@ -73,7 +98,13 @@ func release(cmd *cobra.Command, args []string) {
 
 	rawChanges := args[1:]
 	currentVersion := utils.GetCurrentVersion()
-	newVersion := utils.ChangeVersion(currentVersion, args[0])
+	var newVersion *semver.Version
+
+	if args[0] == "auto" {
+		newVersion = detectNewVersion(currentVersion)
+	} else {
+		newVersion = utils.ChangeVersion(currentVersion, args[0])
+	}
 
 	changes := make([]utils.Change, 0)
 
