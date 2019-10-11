@@ -20,8 +20,13 @@ func InitCLI() *cobra.Command {
 	}
 
 	cmd.AddCommand(&cobra.Command{Use: "list", Aliases: []string{"a", "all", "l"}, Short: "Show all versions.", Run: listVersion})
+	cmd.AddCommand(&cobra.Command{Use: "raw", Aliases: []string{"r"}, Short: "Only show the raw version number.", Run: showRawVersion})
 
 	return cmd
+}
+
+func showRawVersion(cmd *cobra.Command, args []string) {
+	fmt.Println(utils.GetCurrentVersion())
 }
 
 func listVersion(cmd *cobra.Command, args []string) {
