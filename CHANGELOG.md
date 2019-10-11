@@ -1,3 +1,7 @@
+### 2019-10-11 / 1.4.0
+
+* feat: Add command to show raw version number.
+
 ### 2018-06-17 / 1.3.0
 
 * feat: Add `auto` keyword to autodetect the new version to release.
