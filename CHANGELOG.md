@@ -1,3 +1,8 @@
+### 2019-11-20 / 1.5.1
+
+* fix: Improve changelog handling.
+* chore: Updated changelog.
+
 ### 2019-10-11 / 1.5.0
 
 - Minor version fix.
