@@ -1,3 +1,7 @@
+### 2019-11-20 / 1.5.2
+
+* fix: Remove debug data.
+
 ### 2019-11-20 / 1.5.1
 
 * fix: Improve changelog handling.
