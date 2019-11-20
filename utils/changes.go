@@ -28,11 +28,19 @@ func ListChanges(version string) []Change {
 	// Get the current version
 	if version == "" {
 		versions := GetVersions()
+		fmt.Println(versions)
 		version = versions[len(versions)-1].String()
 	}
 
 	// Get the list of changes
-	result := Execute(false, "git", "log", "--format=%h %s", fmt.Sprintf("v%s..HEAD", version))
+	executionArgs := []string{"log", "--format=%h %s"}
+
+	if version != "0.0.0" {
+		executionArgs = append(executionArgs, fmt.Sprintf("v%s..HEAD", version))
+	}
+
+	result := Execute(false, "git", executionArgs...)
+	fmt.Print(result)
 	result.Verify("git", "Cannot list GIT changes")
 
 	rawChanges := strings.Split(strings.TrimSpace(result.Stdout), "\n")
@@ -53,14 +61,19 @@ func ListChanges(version string) []Change {
 // SaveChanges persist changes from GIT to the CHANGELOG.md file.
 func SaveChanges(newVersion, currentVersion *semver.Version, changes []Change, dryRun bool) {
 	cwd, _ := os.Getwd()
-	changelog, err := ioutil.ReadFile(filepath.Join(cwd, "CHANGELOG.md"))
+	changelog := []byte{}
+	var err error
+
+	if _, err := os.Stat(filepath.Join(cwd, "CHANGELOG.md")); !os.IsNotExist(err) {
+		changelog, err = ioutil.ReadFile(filepath.Join(cwd, "CHANGELOG.md"))
+
+		if err != nil {
+			Fatal("Cannot read file {errorPrimary}CHANGELOG.md{-}: {errorPrimary}%s{-}", err.Error())
+		}	
+	}
 
 	if len(changes) == 0 {
 		changes = ListChanges(currentVersion.String())
-	}
-
-	if err != nil {
-		Fatal("Cannot read file {errorPrimary}CHANGELOG.md{-}: {errorPrimary}%s{-}", err.Error())
 	}
 
 	if NotifyExecution(dryRun, "Will append", "Appending", " {primary}%d{-} entries to the CHANGELOG.md file ...", len(changes)) {
@@ -87,7 +100,10 @@ func SaveChanges(newVersion, currentVersion *semver.Version, changes []Change, d
 	// Commit changes
 	message := strings.TrimSpace(configuration.Current.CommitMessages.Changelog)
 	if NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit --all --message \"%s\"{-} ...", message) {
-		result := Execute(true, "git", "commit", "--all", fmt.Sprintf("--message=%s", message))
+		result := Execute(true, "git", "add", "CHANGELOG.md")
+		result.Verify("git", "Cannot add CHANGELOG.md update to git stage area")
+		
+		result = Execute(true, "git", "commit", "--all", fmt.Sprintf("--message=%s", message))
 		result.Verify("git", "Cannot commit CHANGELOG.md update")
 	}
 }

@@ -106,21 +106,21 @@ func release(cmd *cobra.Command, args []string) {
 		newVersion = utils.ChangeVersion(currentVersion, args[0])
 	}
 
-	changes := make([]utils.Change, 0)
-
-	if len(rawChanges) == 0 {
-		changes = utils.ListChanges(currentVersion.String())
-	} else {
-		for _, c := range rawChanges {
-			changes = append(changes, utils.Change{Hash: "", Message: c})
-		}
-	}
-
 	if !dryRun {
 		utils.GitMustBeClean("perform the releasing")
 	}
 
 	if !skipChangelog && utils.NotifyStep(dryRun, "", "Will update", "Updating", " CHANGELOG.md file ...") {
+		changes := make([]utils.Change, 0)
+
+		if len(rawChanges) == 0 {
+			changes = utils.ListChanges(currentVersion.String())
+		} else {
+			for _, c := range rawChanges {
+				changes = append(changes, utils.Change{Hash: "", Message: c})
+			}
+		}
+
 		utils.SaveChanges(newVersion, currentVersion, changes, dryRun)
 	}
 
