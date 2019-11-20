@@ -28,7 +28,6 @@ func ListChanges(version string) []Change {
 	// Get the current version
 	if version == "" {
 		versions := GetVersions()
-		fmt.Println(versions)
 		version = versions[len(versions)-1].String()
 	}
 
@@ -40,7 +39,6 @@ func ListChanges(version string) []Change {
 	}
 
 	result := Execute(false, "git", executionArgs...)
-	fmt.Print(result)
 	result.Verify("git", "Cannot list GIT changes")
 
 	rawChanges := strings.Split(strings.TrimSpace(result.Stdout), "\n")
@@ -69,7 +67,7 @@ func SaveChanges(newVersion, currentVersion *semver.Version, changes []Change, d
 
 		if err != nil {
 			Fatal("Cannot read file {errorPrimary}CHANGELOG.md{-}: {errorPrimary}%s{-}", err.Error())
-		}	
+		}
 	}
 
 	if len(changes) == 0 {
@@ -102,7 +100,7 @@ func SaveChanges(newVersion, currentVersion *semver.Version, changes []Change, d
 	if NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit --all --message \"%s\"{-} ...", message) {
 		result := Execute(true, "git", "add", "CHANGELOG.md")
 		result.Verify("git", "Cannot add CHANGELOG.md update to git stage area")
-		
+
 		result = Execute(true, "git", "commit", "--all", fmt.Sprintf("--message=%s", message))
 		result.Verify("git", "Cannot commit CHANGELOG.md update")
 	}
