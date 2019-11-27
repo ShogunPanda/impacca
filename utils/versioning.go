@@ -101,10 +101,10 @@ func ChangeVersion(version *semver.Version, change string) *semver.Version {
 
 // UpdateVersion updates the current version.
 func UpdateVersion(newVersion, currentVersion *semver.Version, dryRun bool) {
-	switch DetectRelease() {
-	case NpmRelease:
+	switch DetectPackageManager() {
+	case NpmPackageManager:
 		UpdateNpmVersion(newVersion, currentVersion, true, true, dryRun)
-	case GemRelease:
+	case GemPackageManager:
 		UpdateGemVersion(newVersion, currentVersion, true, true, dryRun)
 	default:
 		UpdatePlainVersion(newVersion, currentVersion, true, true, dryRun)

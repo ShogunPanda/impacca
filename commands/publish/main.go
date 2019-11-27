@@ -3,7 +3,7 @@
  * Licensed under the MIT license, which can be found at https://choosealicense.com/licenses/mit.
  */
 
-package release
+package publish
 
 import (
 	"fmt"
@@ -21,10 +21,11 @@ var minorChangeDetect = regexp.MustCompile("^feat(\\(.+\\))?:")
 // InitCLI initializes the CLI
 func InitCLI() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "release <version> [changes...]", Aliases: []string{"r"}, Short: "Releases a new version.", Args: cobra.MinimumNArgs(1), Run: release,
+		Use: "publish <version> [changes...]", Aliases: []string{"p"}, Short: "Publishes a new version.", Args: cobra.MinimumNArgs(1), Run: publish,
 	}
 
 	cmd.Flags().BoolP("skip-changelog", "c", false, "Do not update the CHANGELOG.md file.")
+	cmd.Flags().BoolP("skip-release", "r", false, "Do not update GitHub releases.")
 	cmd.Flags().BoolP("private", "p", false, "Use private scope when possible.")
 
 	return cmd
@@ -50,7 +51,7 @@ func detectNewVersion(currentVersion *semver.Version) *semver.Version {
 	return utils.ChangeVersion(currentVersion, newVersion)
 }
 
-func releaseNpmPackage(newVersion, currentVersion *semver.Version, private, dryRun bool) {
+func publishNpmPackage(newVersion, currentVersion *semver.Version, private, dryRun bool) {
 	access := "public"
 
 	if private {
@@ -66,7 +67,7 @@ func releaseNpmPackage(newVersion, currentVersion *semver.Version, private, dryR
 	}
 }
 
-func releaseGem(newVersion, currentVersion *semver.Version, dryRun bool) {
+func publishGem(newVersion, currentVersion *semver.Version, dryRun bool) {
 	utils.NotifyStep(dryRun, "", "Will update", "Updating", " the version to {primary}%s{-} ...", newVersion.String())
 	utils.UpdateGemVersion(newVersion, currentVersion, true, false, dryRun)
 
@@ -76,7 +77,7 @@ func releaseGem(newVersion, currentVersion *semver.Version, dryRun bool) {
 	}
 }
 
-func releasePlain(newVersion, currentVersion *semver.Version, dryRun bool) {
+func publishPlain(newVersion, currentVersion *semver.Version, dryRun bool) {
 	utils.NotifyStep(dryRun, "", "Will update", "Updating", " the version to {primary}%s{-} ...", newVersion.String())
 	utils.UpdateVersion(newVersion, currentVersion, dryRun)
 
@@ -91,7 +92,7 @@ func releasePlain(newVersion, currentVersion *semver.Version, dryRun bool) {
 	}
 }
 
-func release(cmd *cobra.Command, args []string) {
+func publish(cmd *cobra.Command, args []string) {
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
 	skipChangelog, _ := cmd.Flags().GetBool("skip-changelog")
 	private, _ := cmd.Flags().GetBool("private")
@@ -107,7 +108,7 @@ func release(cmd *cobra.Command, args []string) {
 	}
 
 	if !dryRun {
-		utils.GitMustBeClean("perform the releasing")
+		utils.GitMustBeClean("perform the publishing")
 	}
 
 	if !skipChangelog && utils.NotifyStep(dryRun, "", "Will update", "Updating", " CHANGELOG.md file ...") {
@@ -124,13 +125,13 @@ func release(cmd *cobra.Command, args []string) {
 		utils.SaveChanges(newVersion, currentVersion, changes, dryRun)
 	}
 
-	switch utils.DetectRelease() {
-	case utils.NpmRelease:
-		releaseNpmPackage(newVersion, currentVersion, private, dryRun)
-	case utils.GemRelease:
-		releaseGem(newVersion, currentVersion, dryRun)
+	switch utils.DetectPackageManager() {
+	case utils.NpmPackageManager:
+		publishNpmPackage(newVersion, currentVersion, private, dryRun)
+	case utils.GemPackageManager:
+		publishGem(newVersion, currentVersion, dryRun)
 	default:
-		releasePlain(newVersion, currentVersion, dryRun)
+		publishPlain(newVersion, currentVersion, dryRun)
 	}
 
 	utils.Complete()

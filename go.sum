@@ -6,6 +6,8 @@ github.com/ShogunPanda/fishamnium v8.1.0+incompatible h1:N65C90+aEGD0EXTwweKb0Hw
 github.com/ShogunPanda/fishamnium v8.1.0+incompatible/go.mod h1:Y/BR3eVYW2FGE6REZX4DR9pfFmya2D9RrdFzI5qhIEQ=
 github.com/ShogunPanda/tempera v1.1.0 h1:HJjKkOPGXXvfRnLgAwmwfs7VOFfEoa1PTd69exLfaKw=
 github.com/ShogunPanda/tempera v1.1.0/go.mod h1:p0dVxktI4f74J3C+3UuUIcsy0TvyjTrf2ovK8GnLLY4=
+github.com/franela/goblin v0.0.0-20181003173013-ead4ad1d2727 h1:eouy4stZdUKn7n98c1+rdUTxWMg+jvhP+oHt0K8fiug=
+github.com/franela/goblin v0.0.0-20181003173013-ead4ad1d2727/go.mod h1:7dvUGVsVBjqR7JHJk0brhHOZYGmfBYOrK0ZhYMEtBr4=
 github.com/inconshreveable/mousetrap v1.0.0 h1:Z8tu5sraLXCXIcARxBp/8cbvlwVa7Z1NHg9XEKhtSvM=
 github.com/inconshreveable/mousetrap v1.0.0/go.mod h1:PxqpIevigyE2G7u3NXJIT2ANytuPF1OarO4DADm73n8=
 github.com/magefile/mage v0.0.0-20180411170307-771ebed3d686/go.mod h1:IUDi13rsHje59lecXokTfGX0QIzO45uVPlXnJYsXepA=

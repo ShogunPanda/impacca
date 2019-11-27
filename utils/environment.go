@@ -20,16 +20,16 @@ type npmPackageJSON struct {
 var versionMatcher = regexp.MustCompile("^(v(?:-?))")
 
 const (
-	// PlainRelease releases using Git
-	PlainRelease int = iota
-	// NpmRelease releases using npm
-	NpmRelease
-	// GemRelease release using "rake release" task
-	GemRelease
+	// PlainPackageManager releases using Git
+	PlainPackageManager int = iota
+	// NpmPackageManager releases using npm
+	NpmPackageManager
+	// GemPackageManager release using "rake release" task
+	GemPackageManager
 )
 
-// DetectRelease detects which kind of release we have to use
-func DetectRelease() int {
+// DetectPackageManager detects which kind of release we have to use
+func DetectPackageManager() int {
 	cwd, _ := os.Getwd()
 
 	if _, err := os.Stat(filepath.Join(cwd, "package.json")); !os.IsNotExist(err) {
@@ -43,11 +43,11 @@ func DetectRelease() int {
 
 		// If the package.json file is marked as private, treat as PlainRelease
 		if err != nil || !parsed.Private {
-			return NpmRelease
+			return NpmPackageManager
 		}
 	} else if specs, err := filepath.Glob(filepath.Join(cwd, "*.gemspec")); err == nil && len(specs) > 0 {
-		return GemRelease
+		return GemPackageManager
 	}
 
-	return PlainRelease
+	return PlainPackageManager
 }
