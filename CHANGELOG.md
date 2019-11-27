@@ -1,11 +1,10 @@
 ### 2019-11-20 / 1.5.2
 
-* fix: Remove debug data.
+- fix: Remove debug data.
 
 ### 2019-11-20 / 1.5.1
 
-* fix: Improve changelog handling.
-* chore: Updated changelog.
+- fix: Improve changelog handling.
 
 ### 2019-10-11 / 1.5.0
 
@@ -13,6 +12,7 @@
 
 ### 2019-10-11 / 1.4.0
 
+- chore: Fixed dependencies.
 - feat: Add command to show raw version number.
 
 ### 2018-06-17 / 1.3.0
@@ -32,16 +32,17 @@
 
 ### 2018-05-07 / 1.1.0
 
-- Treat NPM as Git when the package is private.
-- Emoji fixes.
-- Minor fix.
-- Improved logging.
-- Make installer little more verbose.
-- Fixed installer.
-- Updated CHANGELOG.md.
+- feat: Treat NPM as Git when the package is private.
+- fix: Emoji fixes.
+- fix: Minor fix.
+- feat: Improved logging.
+- feat: Make installer little more verbose.
+- feat: Fixed installer.
 
 ### 2018-04-22 / 1.0.0
 
-- Added private support for publishing.
-
-Foo
+- feat: Added private support for publishing.
+- fix: Bugfixes.
+- fix: Bugfixes.
+- feat: Fixed generation file.
+- feat: Fixed versioning.

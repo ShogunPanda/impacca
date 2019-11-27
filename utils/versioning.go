@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/Masterminds/semver"
 	"github.com/ShogunPanda/impacca/configuration"
@@ -74,6 +75,20 @@ func GetCurrentVersion() *semver.Version {
 	}
 
 	return versions[len(versions)-1]
+}
+
+// GetVersionDate return the date of a version.
+func GetVersionDate(version *semver.Version) time.Time {
+	result := Execute(false, "git", "log", "--format=%aI", "-n 1", fmt.Sprintf("v%s", version.String()))
+	result.Verify("git", "Cannot list GIT commits date")
+
+	date, err := time.Parse(time.RFC3339, strings.TrimSpace(result.Stdout))
+
+	if err != nil {
+		Fatal("Cannot parse git commit date: {errorPrimary}%s{-}", err.Error())
+	}
+
+	return date
 }
 
 // ChangeVersion changes the current version.
@@ -174,12 +189,10 @@ func UpdatePlainVersion(newVersion, currentVersion *semver.Version, commit, tag,
 		}
 
 		if commit {
-			if !NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit --all --message \"%s\"{-} ...", versionMessage) {
-				return
+			if NotifyExecution(dryRun, "Will execute", "Executing", ": {primary}git commit --all --message \"%s\"{-} ...", versionMessage) {
+				result := Execute(true, "git", "commit", "--all", fmt.Sprintf("--message=%s", versionMessage))
+				result.Verify("Impaccafile", "Cannot commit Impaccafile changes")
 			}
-
-			result := Execute(true, "git", "commit", "--all", fmt.Sprintf("--message=%s", versionMessage))
-			result.Verify("Impaccafile", "Cannot commit Impaccafile changes")
 		}
 	}
 

@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var majorChangeDetect = regexp.MustCompile(".*BREAKING CHANGE:\\s.*")
+var majorChangeDetect = regexp.MustCompile("(?:^[a-z]+\\!)|(?:.*\nBREAKING CHANGE:\\s.*)")
 var minorChangeDetect = regexp.MustCompile("^feat(\\(.+\\))?:")
 
 // InitCLI initializes the CLI
@@ -32,7 +32,7 @@ func InitCLI() *cobra.Command {
 }
 
 func detectNewVersion(currentVersion *semver.Version) *semver.Version {
-	changes := utils.ListChanges(currentVersion.String())
+	changes := utils.ListChanges(currentVersion.String(), "")
 	newVersion := "patch"
 
 	if len(changes) == 0 {
@@ -115,7 +115,7 @@ func publish(cmd *cobra.Command, args []string) {
 		changes := make([]utils.Change, 0)
 
 		if len(rawChanges) == 0 {
-			changes = utils.ListChanges(currentVersion.String())
+			changes = utils.ListChanges(currentVersion.String(), "")
 		} else {
 			for _, c := range rawChanges {
 				changes = append(changes, utils.Change{Hash: "", Message: c})
@@ -133,6 +133,9 @@ func publish(cmd *cobra.Command, args []string) {
 	default:
 		publishPlain(newVersion, currentVersion, dryRun)
 	}
+
+	// Now edit the Github release, if applicable
+	// TODO@PI:
 
 	utils.Complete()
 }
