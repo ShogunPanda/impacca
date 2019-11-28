@@ -8,6 +8,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -15,6 +16,9 @@ import (
 )
 
 var outputMutex = sync.Mutex{}
+
+// ShowDebug is true when DEBUG environment is truthy
+var ShowDebug = regexp.MustCompile("(?i)^(true|yes|y|t|1)$").MatchString(os.Getenv("DEBUG"))
 
 // Log shows a output message
 func Log(destination *os.File, message string, args ...interface{}) {
@@ -52,7 +56,9 @@ func Fail(message string, args ...interface{}) {
 
 // Debug shows a debug message
 func Debug(message string, args ...interface{}) {
-	LogWithIcon(os.Stderr, "⚙️", fmt.Sprintf("{bold ANSI:3,0,3}%s{-}", message), args...) // Emoji code: 2699+FEOF
+	if ShowDebug {
+		LogWithIcon(os.Stderr, "⚙️", fmt.Sprintf("{bold ANSI:3,0,3}%s{-}", message), args...) // Emoji code: 2699+FEOF
+	}	
 }
 
 // Fatal aborts the executable with a error message

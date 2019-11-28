@@ -61,10 +61,6 @@ func showAndBufferOutput(wg *sync.WaitGroup, source io.ReadCloser, buffer *strin
 
 // Execute executes a command.
 func Execute(showOutput bool, cmd string, args ...string) (result ExecutionResult) {
-	if debugMatcher.MatchString(os.Getenv("DEBUG")) {
-		showOutput = true
-	}
-
 	gitCmd := exec.Command(cmd, args...)
 
 	// Pipe stdout and stderr
@@ -73,7 +69,7 @@ func Execute(showOutput bool, cmd string, args ...string) (result ExecutionResul
 	
 	wg.Add(2)
 
-	if showOutput {
+	if ShowDebug || showOutput {
 		destinationOut = os.Stdout
 		destinationErr = os.Stderr
 	}
