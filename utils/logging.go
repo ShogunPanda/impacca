@@ -8,6 +8,7 @@ package utils
 import (
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/ShogunPanda/tempera"
@@ -95,4 +96,15 @@ func FinishStep(code int) {
 	}
 
 	LogWithIcon(os.Stdout, "⚙️", fmt.Sprintf("{%s}Exited with status %d{-}", color, code)) // Emoji code: 2699+FEOF
+}
+
+// Indent indents a string
+func Indent(input, indentation string) string {
+	lines := strings.Split(strings.TrimSpace(input), "\n")
+
+	for i := range lines {
+		lines[i] = indentation + lines[i]
+	}
+
+	return strings.Join(lines, "\n")
 }

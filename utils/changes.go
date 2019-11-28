@@ -49,11 +49,11 @@ func ListChanges(version, previousVersion string) []Change {
 		previousVersion = "HEAD"
 	}
 
-	if !commitChecker.MatchString(version) {
+	if version != "HEAD" && !commitChecker.MatchString(version) {
 		version = fmt.Sprintf("v%s", version)
 	}
 
-	if !commitChecker.MatchString(previousVersion) {
+	if previousVersion != "HEAD" && !commitChecker.MatchString(previousVersion) {
 		previousVersion = fmt.Sprintf("v%s", previousVersion)
 	}
 
@@ -87,9 +87,9 @@ func ListChanges(version, previousVersion string) []Change {
 		changes = append(
 			changes,
 			Change{
-				strings.TrimSpace(changeTokens[0]),
+				strings.ToLower(strings.TrimSpace(changeTokens[0])),
 				strings.TrimSpace(messageComponents[1]),
-				strings.TrimSpace(messageComponents[0]),
+				strings.ToLower(strings.TrimSpace(messageComponents[0])),
 			},
 		)
 	}
@@ -101,7 +101,10 @@ func ListChanges(version, previousVersion string) []Change {
 func FormatChanges(previous string, version *semver.Version, changes []Change, date time.Time) string {
 	// Create the new entry
 	var builder strings.Builder
-	builder.WriteString(fmt.Sprintf("### %s / %s\n\n", date.Format("2006-01-02"), version.String()))
+
+	if !date.IsZero() {
+		builder.WriteString(fmt.Sprintf("### %s / %s\n\n", date.Format("2006-01-02"), version.String()))
+	}
 
 	for _, change := range changes {
 		// Filter some commits
@@ -118,6 +121,29 @@ func FormatChanges(previous string, version *semver.Version, changes []Change, d
 
 	return builder.String()
 }
+
+// FormatReleaseChanges formats changes for a GitHub release.
+func FormatReleaseChanges(repository string, changes []Change) string {
+	// Create the new entry
+	var builder strings.Builder
+
+	for _, change := range changes {
+		// Filter some commits
+		if updateChangelogCommitFilter.MatchString(change.Message) || versionTagCommitFilter.MatchString(change.Message) {
+			continue
+		}
+
+		builder.WriteString(
+			fmt.Sprintf(
+				"- %s: %s ([%s](https://github.com/%s/commit/%s))\n", 
+				change.Type, change.Message, change.Hash, repository, change.Hash,
+			),
+		)
+	}
+
+	return builder.String()
+}
+
 
 // SaveChanges persist changes from GIT to the CHANGELOG.md file.
 func SaveChanges(newVersion, currentVersion *semver.Version, changes []Change, dryRun bool) {

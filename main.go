@@ -11,6 +11,7 @@ import (
 
 	"github.com/ShogunPanda/impacca/commands/changelog"
 	"github.com/ShogunPanda/impacca/commands/publish"
+	"github.com/ShogunPanda/impacca/commands/release"
 	"github.com/ShogunPanda/impacca/commands/version"
 )
 
@@ -26,6 +27,7 @@ func main() {
 	rootCmd.AddCommand(version.InitCLI())
 	rootCmd.AddCommand(changelog.InitCLI())
 	rootCmd.AddCommand(publish.InitCLI())
+	rootCmd.AddCommand(release.InitCLI())
 
 	rootCmd.Execute()
 }
