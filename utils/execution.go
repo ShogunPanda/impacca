@@ -12,8 +12,12 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
+	"sync"
 	"syscall"
 )
+
+var debugMatcher = regexp.MustCompile("(?i)^(true|yes|y|t|1)$")
 
 // ExecutionResult represents a command execution result
 type ExecutionResult struct {
@@ -37,7 +41,7 @@ func wrapOutput(output string) string {
 	return replacer.ReplaceAllString(output, "⛓️\x1b[4G$1")
 }
 
-func showAndBufferOutput(source io.ReadCloser, buffer *string, destination *os.File) {
+func showAndBufferOutput(wg *sync.WaitGroup, source io.ReadCloser, buffer *string, destination *os.File) {
 	defer source.Close()
 
 	scanner := bufio.NewScanner(source)
@@ -51,14 +55,23 @@ func showAndBufferOutput(source io.ReadCloser, buffer *string, destination *os.F
 
 		*buffer += line + "\n"
 	}
+
+	wg.Done()
 }
 
 // Execute executes a command.
 func Execute(showOutput bool, cmd string, args ...string) (result ExecutionResult) {
+	if debugMatcher.MatchString(os.Getenv("DEBUG")) {
+		showOutput = true
+	}
+
 	gitCmd := exec.Command(cmd, args...)
 
 	// Pipe stdout and stderr
 	var destinationOut, destinationErr *os.File
+	var wg sync.WaitGroup
+	
+	wg.Add(2)
 
 	if showOutput {
 		destinationOut = os.Stdout
@@ -67,11 +80,13 @@ func Execute(showOutput bool, cmd string, args ...string) (result ExecutionResul
 
 	commandStdout, _ := gitCmd.StdoutPipe()
 	commandStderr, _ := gitCmd.StderrPipe()
-	go showAndBufferOutput(commandStdout, &result.Stdout, destinationOut)
-	go showAndBufferOutput(commandStderr, &result.Stderr, destinationErr)
+	go showAndBufferOutput(&wg, commandStdout, &result.Stdout, destinationOut)
+	go showAndBufferOutput(&wg, commandStderr, &result.Stderr, destinationErr)
 
 	// Execute the command
+	Debug("Executing: %s %s", cmd, strings.Join(args, " "))
 	result.Error = gitCmd.Run()
+	wg.Wait()
 
 	// The command exited with errors, copy the exit code
 	if result.Error != nil {
