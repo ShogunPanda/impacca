@@ -7,16 +7,12 @@ package publish
 
 import (
 	"fmt"
-	"regexp"
+	"strings"
 
 	"github.com/Masterminds/semver"
-	"github.com/ShogunPanda/fishamnium/console"
 	"github.com/ShogunPanda/impacca/utils"
 	"github.com/spf13/cobra"
 )
-
-var majorChangeDetect = regexp.MustCompile("(?:^[a-z]+\\!)|(?:.*\nBREAKING CHANGE:\\s.*)")
-var minorChangeDetect = regexp.MustCompile("^feat(\\(.+\\))?:")
 
 // InitCLI initializes the CLI
 func InitCLI() *cobra.Command {
@@ -24,9 +20,11 @@ func InitCLI() *cobra.Command {
 		Use: "publish <version> [changes...]", Aliases: []string{"p"}, Short: "Publishes a new version.", Args: cobra.MinimumNArgs(1), Run: publish,
 	}
 
-	cmd.Flags().BoolP("skip-changelog", "c", false, "Do not update the CHANGELOG.md file.")
-	cmd.Flags().BoolP("skip-release", "r", false, "Do not update GitHub releases.")
 	cmd.Flags().BoolP("private", "p", false, "Use private scope when possible.")
+	cmd.Flags().StringP("remote", "r", "origin", "The git remote name.")
+	cmd.Flags().StringP("token", "t", "", "The GitHub API token.")
+	cmd.Flags().BoolP("skip-changelog", "c", false, "Do not update the CHANGELOG.md file.")
+	cmd.Flags().BoolP("skip-release", "R", false, "Do not update GitHub releases.")
 
 	return cmd
 }
@@ -36,14 +34,14 @@ func detectNewVersion(currentVersion *semver.Version) *semver.Version {
 	newVersion := "patch"
 
 	if len(changes) == 0 {
-		console.Fatal("Cannot detect the new version: no changes found.")
+		utils.Fatal("Cannot detect the new version: no changes found.")
 	}
 
 	for _, change := range changes {
-		if majorChangeDetect.MatchString(change.Message) {
+		if strings.HasSuffix(change.Type, "!") || strings.Index(change.Message, "\nBREAKING CHANGE: ") != -1 {
 			newVersion = "major"
 			break
-		} else if minorChangeDetect.MatchString(change.Message) {
+		} else if change.Hash == "feat" {
 			newVersion = "minor"
 		}
 	}
@@ -95,7 +93,11 @@ func publishPlain(newVersion, currentVersion *semver.Version, dryRun bool) {
 func publish(cmd *cobra.Command, args []string) {
 	dryRun, _ := cmd.Flags().GetBool("dry-run")
 	skipChangelog, _ := cmd.Flags().GetBool("skip-changelog")
+	skipRelease, _ := cmd.Flags().GetBool("skip-release")
 	private, _ := cmd.Flags().GetBool("private")
+	remote, _ := cmd.Flags().GetString("remote")
+	repository := utils.DetectGithubRepository(remote, true)
+	token, _ := cmd.Flags().GetString("token")
 
 	rawChanges := args[1:]
 	currentVersion := utils.GetCurrentVersion()
@@ -109,6 +111,10 @@ func publish(cmd *cobra.Command, args []string) {
 
 	if !dryRun {
 		utils.GitMustBeClean("perform the publishing")
+	}
+
+	if !skipRelease && repository != "" && token == "" {
+		utils.Fatal("In order to publish with a related GitHub release, you must provide a GitHub API token.")
 	}
 
 	if !skipChangelog && utils.NotifyStep(dryRun, "", "Will update", "Updating", " CHANGELOG.md file ...") {
@@ -135,6 +141,10 @@ func publish(cmd *cobra.Command, args []string) {
 	}
 
 	// Now edit the Github release, if applicable
+	if !skipRelease && repository != "" {
+		utils.SaveRelease(newVersion, repository, remote, token, dryRun)
+	}
+
 	// TODO@PI:
 
 	utils.Complete()
