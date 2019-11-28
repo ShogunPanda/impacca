@@ -1,3 +1,12 @@
+### 2019-11-28 / 2.0.0
+
+- chore: Rebuild.
+- feat!: Create GitHub release when publishing. Makes token mandatory.
+- feat: Added release command to manage GitHub releases.
+- fix: Fixed execution synchronization.
+- feat: Added changelog version and regenerate commands.
+- feat!: Rename release command to publish.
+
 ### 2019-11-20 / 1.5.2
 
 - fix: Remove debug data.
