@@ -1,3 +1,7 @@
+### 2019-11-29 / 2.0.2
+
+- fix: Exclude commit with version only in the changelog.
+
 ### 2019-11-28 / 2.0.1
 
 - fix: Correctly respect debug environment variable.
