@@ -29,6 +29,11 @@ type Change struct {
 	Type    string
 }
 
+func filterCommit(change Change) bool {
+	_, err := semver.NewVersion(change.Message)
+	return updateChangelogCommitFilter.MatchString(change.Message) || versionTagCommitFilter.MatchString(change.Message) || err == nil
+}
+
 // GetFirstCommitHash gets the first commit hash
 func GetFirstCommitHash() string {
 	result := Execute(false, "git", "log", "--reverse", "--format=%H")
@@ -108,7 +113,7 @@ func FormatChanges(previous string, version *semver.Version, changes []Change, d
 
 	for _, change := range changes {
 		// Filter some commits
-		if updateChangelogCommitFilter.MatchString(change.Message) || versionTagCommitFilter.MatchString(change.Message) {
+		if filterCommit(change) {
 			continue
 		}
 
@@ -129,13 +134,13 @@ func FormatReleaseChanges(repository string, changes []Change) string {
 
 	for _, change := range changes {
 		// Filter some commits
-		if updateChangelogCommitFilter.MatchString(change.Message) || versionTagCommitFilter.MatchString(change.Message) {
+		if filterCommit(change) {
 			continue
 		}
 
 		builder.WriteString(
 			fmt.Sprintf(
-				"- %s: %s ([%s](https://github.com/%s/commit/%s))\n", 
+				"- %s: %s ([%s](https://github.com/%s/commit/%s))\n",
 				change.Type, change.Message, change.Hash, repository, change.Hash,
 			),
 		)
@@ -143,7 +148,6 @@ func FormatReleaseChanges(repository string, changes []Change) string {
 
 	return builder.String()
 }
-
 
 // SaveChanges persist changes from GIT to the CHANGELOG.md file.
 func SaveChanges(newVersion, currentVersion *semver.Version, changes []Change, dryRun bool) {
