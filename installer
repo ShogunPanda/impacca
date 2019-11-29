@@ -19,5 +19,11 @@ Darwin)
 esac
 
 mkdir -p /usr/local/bin
-curl -L -o /usr/local/bin/impacca https://github.com/ShogunPanda/impacca/raw/$VERSION/dist/impacca-$OS
+
+if [ "$LOCAL" = "true" ]; then
+  cp -v ./dist/impacca-$OS /usr/local/bin/impacca
+else 
+  curl -L -o /usr/local/bin/impacca https://github.com/ShogunPanda/impacca/raw/$VERSION/dist/impacca-$OS
+fi
+
 chmod a+x /usr/local/bin/impacca
