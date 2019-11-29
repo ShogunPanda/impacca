@@ -1,3 +1,7 @@
+### 2019-11-29 / 2.0.3
+
+- chore: Support local installer.
+
 ### 2019-11-29 / 2.0.2
 
 - fix: Exclude commit with version only in the changelog.
