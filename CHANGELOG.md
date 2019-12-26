@@ -1,3 +1,7 @@
+### 2019-12-26 / 2.0.4
+
+- feat: Allow GitHub token from environment variable IMPACCA_GITHUB_TOKEN.
+
 ### 2019-11-29 / 2.0.3
 
 - chore: Support local installer.
