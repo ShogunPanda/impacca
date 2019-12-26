@@ -7,6 +7,7 @@ package publish
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/Masterminds/semver"
@@ -111,6 +112,10 @@ func publish(cmd *cobra.Command, args []string) {
 
 	if !dryRun {
 		utils.GitMustBeClean("perform the publishing")
+	}
+
+	if token == "" {
+		token = os.Getenv("IMPACCA_GITHUB_TOKEN")
 	}
 
 	if !skipRelease && repository != "" && token == "" {
