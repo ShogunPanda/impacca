@@ -1,3 +1,7 @@
+### 2020-01-29 / 2.0.5
+
+- fix: Use GitHub token when needed.
+
 ### 2019-12-26 / 2.0.4
 
 - feat: Allow GitHub token from environment variable IMPACCA_GITHUB_TOKEN.
