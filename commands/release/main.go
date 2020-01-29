@@ -7,6 +7,7 @@ package release
 
 import (
 	"fmt"
+	"os"
 	"sort"
 
 	"github.com/Masterminds/semver"
@@ -41,7 +42,7 @@ func InitCLI() *cobra.Command {
 
 func printRelease(release utils.Release) {
 	fmt.Printf(tempera.ColorizeTemplate(fmt.Sprintf(
-		"\u0020\u0020\u0020* Version {primary}%s{-} ({secondary}%s{-})\n", 
+		"\u0020\u0020\u0020* Version {primary}%s{-} ({secondary}%s{-})\n",
 		release.Version.String(), release.Date.Format("2006-01-02"),
 	)))
 
@@ -57,16 +58,16 @@ func showReleases(cmd *cobra.Command, args []string) {
 	repository := utils.DetectGithubRepository(remote, false)
 
 	res := utils.GitHubReleaseAPICall(
-		"get GitHub releases", "GET", fmt.Sprintf("/repos/%s/releases", repository), 
+		"get GitHub releases", "GET", fmt.Sprintf("/repos/%s/releases", repository),
 		"", map[string]string{}, true,
 	)
 
 	var releases []utils.Release
 	err := res.JSON(&releases)
-	
+
 	if err != nil {
 		utils.Fatal("Cannot decode JSON response to get GitHub releases: {errorPrimary}%s{-}", err.Error())
-	}	
+	}
 
 	if len(releases) == 0 {
 		utils.Warn("No GitHub releases found.")
@@ -77,7 +78,7 @@ func showReleases(cmd *cobra.Command, args []string) {
 	sort.SliceStable(releases, func(i, j int) bool { return releases[i].Version.GreaterThan(releases[j].Version) })
 
 	utils.Info("Found {secondary}%d{-} GitHub release(s):\n", len(releases))
-	
+
 	for _, release := range releases {
 		printRelease(release)
 	}
@@ -89,7 +90,7 @@ func showRelease(cmd *cobra.Command, args []string) {
 	version, _ := semver.NewVersion(args[0])
 
 	res := utils.GitHubReleaseAPICall(
-		"get a GitHub release", "GET", fmt.Sprintf("/repos/%s/releases/tags/v%s", repository, version), 
+		"get a GitHub release", "GET", fmt.Sprintf("/repos/%s/releases/tags/v%s", repository, version),
 		"", map[string]string{}, true,
 	)
 
@@ -99,10 +100,10 @@ func showRelease(cmd *cobra.Command, args []string) {
 
 	var release utils.Release
 	err := res.JSON(&release)
-	
+
 	if err != nil {
 		utils.Fatal("Cannot decode JSON response to get a GitHub release: {errorPrimary}%s{-}", err.Error())
-	}	
+	}
 
 	utils.Info("Found one GitHub release:\n")
 	printRelease(release)
@@ -115,6 +116,10 @@ func saveRelease(cmd *cobra.Command, args []string) {
 	repository := utils.DetectGithubRepository(remote, false)
 	version, _ := semver.NewVersion(args[0])
 
+	if token == "" {
+		token = os.Getenv("IMPACCA_GITHUB_TOKEN")
+	}
+
 	utils.SaveRelease(version, repository, remote, token, dryRun)
 }
 
@@ -124,6 +129,10 @@ func regenerateReleases(cmd *cobra.Command, args []string) {
 	token, _ := cmd.Flags().GetString("token")
 	repository := utils.DetectGithubRepository(remote, false)
 	versions := utils.GetVersions()
+
+	if token == "" {
+		token = os.Getenv("IMPACCA_GITHUB_TOKEN")
+	}
 
 	for _, version := range versions {
 		utils.SaveRelease(version, repository, remote, token, dryRun)
